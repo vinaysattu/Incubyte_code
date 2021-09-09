@@ -1,0 +1,62 @@
+// Creating tables:
+Creating database:
+create database project1;
+use project1;
+
+//Creating Staging Table:
+
+create external table customer_staging
+(
+Name varchar(255),
+Cust_ID varchar(18),
+Open_Dt date,
+Consul_Dt date,
+Vac_Id char(5),
+DR_Name char(255),
+State char(5),
+Country char(5),
+DOB date,
+Flag char(1)
+)
+row format delimited
+fields terminated by ','
+stored as textfile
+tblproperties("skip.header.line.count"="1");
+
+//if the given data has a attribute row at the top, so skipping that row
+
+// Load the data into HDFS from input file into a staging table by name customer_staging and validating the data from the input file.
+Hadoop fs -mkdir Vaccination_project //creation of directory
+hadoop fs  -put  /****/   Vaccination_project  //allocating path
+
+here /****/ is directory location.
+LOAD DATA INPATH '/****/' OVERWRITE INTO TABLE customer_staging;         //insertion
+Select * from customer_staging;      //validation of data flow
+
+
+
+
+
+//	Creating target tables:
+create external table customer_target_India(
+Name varchar(255),
+Cust_ID varchar(18),
+Open_Dt date,
+Consul_Dt date,
+Vac_Id char(5),
+DR_Name char(255),
+State char(5),
+Country char(5),
+DOB date,
+Flag char(1)
+)
+
+//different tables can be created with different country names.
+//Insertion into target (country) specific table.
+
+insert into table customer_target_India 
+select * from customer_staging where Country = ‘India’;
+
+// same can be done to different country names
+
+
